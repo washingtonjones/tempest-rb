@@ -1,9 +1,13 @@
+require_relative 'positions'
+
 class Player
   def initialize
     @image = Gosu::Image.new("lib/assets/images/starfighter.bmp")
     @beep =  Gosu::Sample.new("lib/assets/sounds/beep.wav")
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
+    @player_positions = Positions::POSITIONS
+    @current_player_position = 0
   end
 
   def warp(x, y)
@@ -11,26 +15,39 @@ class Player
   end
   
   def turn_left
-    @angle -= 4.5
+    @angle += 45.0
+    get_next_position
+    warp(get_x_position, get_y_position)
   end
   
   def turn_right
-    @angle += 4.5
+    @angle -= 45.0
+    get_prev_position
+    warp(get_x_position, get_y_position)
   end
-  
-  def accelerate
-    @vel_x += Gosu.offset_x(@angle, 0.5)
-    @vel_y += Gosu.offset_y(@angle, 0.5)
+
+  def get_next_position
+    if @current_player_position < 7
+      @current_player_position +=1
+    else
+      @current_player_position = 0
+    end
   end
-  
-  def move
-    @x += @vel_x
-    @y += @vel_y
-    @x %= 640
-    @y %= 480
-    
-    @vel_x *= 0.95
-    @vel_y *= 0.95
+
+  def get_prev_position
+    if @current_player_position > 0
+      @current_player_position -= 1
+    else
+      @current_player_position = 7
+    end
+  end
+
+  def get_x_position
+    @player_positions[@current_player_position][:x]
+  end
+
+  def get_y_position
+    @player_positions[@current_player_position][:y]
   end
 
   def score
